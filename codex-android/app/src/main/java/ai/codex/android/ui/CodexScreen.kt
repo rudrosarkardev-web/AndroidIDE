@@ -752,8 +752,8 @@ private fun AddProfileDialog(
         Spacer(Modifier.height(10.dp))
         OutlinedTextField(label = { Text("Label") }, value = label, onValueChange = { label = it }, singleLine = true, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
-        if (provider.needsSecret) {
-          OutlinedTextField(label = { Text("API key") }, value = secret, onValueChange = { secret = it }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+        if (!provider.local) {
+          OutlinedTextField(label = { Text(if (provider.needsSecret) "API key" else "API key (optional)") }, value = secret, onValueChange = { secret = it }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
           Spacer(Modifier.height(8.dp))
         } else {
           Text("Local route — leave API key empty", color = Good, fontSize = 11.sp, modifier = Modifier.padding(vertical = 4.dp))
@@ -785,7 +785,7 @@ private fun ImportProfilesDialog(onDismiss: () -> Unit, onImport: (String) -> Un
       Column(Modifier.padding(20.dp)) {
         Text("Import routes", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(5.dp))
-        Text("One per line: PROVIDER|label|api-key|base-url|model. JSON arrays and { keys: [...] } are also supported.", color = Muted, fontSize = 11.sp)
+        Text("One per line: PROVIDER|label|api-key|base-url|model. Compatible and local routes may leave api-key empty. JSON arrays are accepted too.", color = Muted, fontSize = 11.sp)
         Spacer(Modifier.height(13.dp))
         BasicTextField(
           value = text,

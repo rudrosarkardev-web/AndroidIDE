@@ -126,7 +126,7 @@ class KeyVault(context: Context) {
         }
     }
 
-    val fresh = imported.filter { it.secret.isNotBlank() || it.provider.local }
+    val fresh = imported.filter { it.secret.isNotBlank() || !it.provider.needsSecret }
     existing += fresh
     write(existing.distinctBy { it.id })
     fresh.size
@@ -151,7 +151,7 @@ class KeyVault(context: Context) {
   private fun parseJsonProfile(item: JSONObject): ApiKeyProfile? {
     val provider = ProviderKind.fromStored(item.optString("provider", item.optString("kind", "OPENAI_COMPATIBLE")))
     val secret = item.optString("secret", item.optString("apiKey", ""))
-    if (secret.isBlank() && !provider.local) return null
+    if (secret.isBlank() && provider.needsSecret) return null
     return ApiKeyProfile(
       id = item.optString("id", UUID.randomUUID().toString()),
       label = item.optString("label", item.optString("name", "${provider.displayName} key")),
