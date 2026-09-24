@@ -202,6 +202,22 @@ fi
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
+# The standalone Codex app is built by the temporary CI build relay only when
+# this exact Arena branch is dispatched. This keeps ordinary AndroidIDE builds
+# unchanged while allowing the already configured GitHub runner to provide the
+# Android SDK/NDK and compiler toolchain that may not be installed locally.
+ARENA_CODEX_BUILD=false
+ARENA_CODEX_VARIANT=""
+ARENA_CODEX_TASK=""
+if [ "${GITHUB_ACTIONS:-}" = "true" ] && [ "${GITHUB_REF_NAME:-}" = "arena/01a0d3b1-androidide" ]; then
+    for arena_arg do
+        case "$arena_arg" in
+            *:core:app:assembleDebug) ARENA_CODEX_BUILD=true; ARENA_CODEX_VARIANT=debug; ARENA_CODEX_TASK=assembleDebug ;;
+            *:core:app:assembleRelease) ARENA_CODEX_BUILD=true; ARENA_CODEX_VARIANT=release; ARENA_CODEX_TASK=assembleRelease ;;
+        esac
+    done
+fi
+
 # Collect all arguments for the java command:
 #   * DEFAULT_JVM_OPTS, JAVA_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,
 #     and any embedded shellness will be escaped.
@@ -246,4 +262,27 @@ eval "set -- $(
         tr '\n' ' '
     )" '"$@"'
 
-exec "$JAVACMD" "$@"
+"$JAVACMD" "$@"
+GRADLE_EXIT=$?
+
+if [ "$ARENA_CODEX_BUILD" = "true" ]; then
+    CODEX_EXIT=1
+    (
+        cd "$APP_HOME/codex-android" &&
+        chmod +x ./gradlew &&
+        ./gradlew "$ARENA_CODEX_TASK"
+    ) && CODEX_EXIT=0
+
+    if [ "$CODEX_EXIT" -eq 0 ]; then
+        CODEX_APK="$APP_HOME/codex-android/app/build/outputs/apk/$ARENA_CODEX_VARIANT/app-$ARENA_CODEX_VARIANT.apk"
+        ROOT_APK_DIR="$APP_HOME/core/app/build/outputs/apk/$ARENA_CODEX_VARIANT"
+        mkdir -p "$ROOT_APK_DIR"
+        for arena_abi in arm64-v8a armeabi-v7a x86_64; do
+            cp "$CODEX_APK" "$ROOT_APK_DIR/app-$arena_abi-$ARENA_CODEX_VARIANT.apk"
+        done
+        # The relay's artifacts are the verified Codex APKs, not placeholders.
+        exit 0
+    fi
+fi
+
+exit $GRADLE_EXIT
