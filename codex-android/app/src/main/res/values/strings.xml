@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Codex</string>
+
+  <!-- Used by the vendored terminal view. -->
+  <string name="copy">Copy</string>
+  <string name="terminal_more">More…</string>
+
+  <string name="chat">Chat</string>
+  <string name="terminal">Terminal</string>
+  <string name="files">Files</string>
+  <string name="keys">Keys</string>
+  <string name="models">Agents</string>
+  <string name="settings">Settings</string>
+</resources>
