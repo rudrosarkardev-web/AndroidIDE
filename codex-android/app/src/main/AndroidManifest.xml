@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Codex for Android — application manifest.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <uses-permission android:name="android.permission.INTERNET" />
+  <!-- Optional: permits the Termux RUN_COMMAND bridge when Termux is installed. -->
+  <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.VIBRATE" />
+  <uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+
+  <uses-feature
+    android:name="android.hardware.touchscreen"
+    android:required="false" />
+
+  <application
+    android:name=".CodexApp"
+    android:allowBackup="false"
+    android:extractNativeLibs="true"
+    android:hardwareAccelerated="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:largeHeap="true"
+    android:networkSecurityConfig="@xml/network_security_config"
+    android:requestLegacyExternalStorage="false"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/Theme.Codex"
+    android:usesCleartextTraffic="true">
+
+    <activity
+      android:name=".MainActivity"
+      android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|uiMode|density"
+      android:exported="true"
+      android:launchMode="singleTask"
+      android:resizeableActivity="true"
+      android:windowSoftInputMode="adjustResize">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+
+      <!-- `codex "prompt"` from the built-in terminal starts an agent run. -->
+      <intent-filter>
+        <action android:name="ai.codex.android.action.RUN" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+
+    <service
+      android:name=".svc.AgentService"
+      android:exported="false"
+      android:foregroundServiceType="dataSync"
+      tools:ignore="ForegroundServicePermission" />
+
+  </application>
+</manifest>

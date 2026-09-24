@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cleartext traffic is allowed so that locally hosted model servers
+  (Ollama / LM Studio / llama.cpp on 127.0.0.1 or a LAN address) work out of
+  the box. All remote providers use HTTPS.
+-->
+<network-security-config>
+  <base-config cleartextTrafficPermitted="true">
+    <trust-anchors>
+      <certificates src="system" />
+      <certificates src="user" />
+    </trust-anchors>
+  </base-config>
+</network-security-config>
